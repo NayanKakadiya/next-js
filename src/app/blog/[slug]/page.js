@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getPostById, getPosts } from '../../services/api';
+import { getPostById, getPostBySlug, getPosts } from '../../services/api';
 
 async function getBlogs(page = 1) {
   const limit = 10;
@@ -95,36 +95,8 @@ function formatDate(value) {
 }
 
 async function getBlogBySlug(slug) {
-  const id = Number(slug);
-  if (Number.isFinite(id) && id > 0) {
-    return getPostById(id);
-  }
-
-  const firstPage = await getBlogs(1);
-  const foundPost = firstPage.blogs.find((item) => {
-    const itemSlug = getBlogSlug(item);
-    return itemSlug === slug || item?.id?.toString() === slug;
-  });
-
-  if (foundPost) {
-    return foundPost;
-  }
-
-  const totalPages = firstPage.pagination.totalPages;
-
-  for (let page = 2; page <= totalPages; page += 1) {
-    const { blogs } = await getBlogs(page);
-    const post = blogs.find((item) => {
-      const itemSlug = getBlogSlug(item);
-      return itemSlug === slug || item?.id?.toString() === slug;
-    });
-
-    if (post) {
-      return post;
-    }
-  }
-
-  return undefined;
+  const post = await getPostBySlug(slug);
+  return post ?? undefined;
 }
 
 export async function generateMetadata({ params }) {

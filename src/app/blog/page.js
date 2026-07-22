@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { getPosts } from '../services/api';
 
-// 1. Force Dynamic rendering to avoid build-time fetch issues on Vercel
 export const dynamic = 'force-dynamic';
 
 async function getBlogs(page = 1) {
@@ -9,11 +8,13 @@ async function getBlogs(page = 1) {
     const limit = 10;
     const data = await getPosts(page, limit);
 
-    const totalItems = Number(data.total || 0);
+    console.log('Fetched Posts Data:', data);
+
+    const totalItems = Number(data?.total || 0);
     const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
 
     return {
-      blogs: data.posts || [],
+      blogs: Array.isArray(data?.posts) ? data.posts : [],
       pagination: {
         currentPage: page,
         totalPages,
@@ -22,7 +23,7 @@ async function getBlogs(page = 1) {
       },
     };
   } catch (error) {
-    console.error('Error fetching blogs:', error);
+    console.error('Error fetching blogs in Page:', error);
     return {
       blogs: [],
       pagination: { currentPage: 1, totalPages: 1, totalItems: 0, perPage: 10 },
@@ -47,15 +48,11 @@ function getBlogSlug(post) {
 }
 
 function getBlogExcerpt(post) {
-  return post?.summary || post?.excerpt || post?.description || post?.content || 'Read the full article to discover more insights.';
-}
-
-function getBlogImage(post) {
-  return post?.featured_image || post?.image || post?.featuredImage || post?.thumbnail || '';
+  return post?.summary || post?.excerpt || post?.description || post?.content || post?.body || 'Read the full article to discover more insights.';
 }
 
 function getBlogCategory(post) {
-  return post?.category || post?.tag || post?.topic || 'Blog';
+  return post?.category || post?.tags?.[0] || 'Blog';
 }
 
 export const metadata = {
@@ -120,7 +117,7 @@ export default async function BlogPage({ searchParams }) {
               return (
                 <article
                   key={slug + index}
-                  className="group overflow-hidden rounded-4xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+                  className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between"
                 >
                   <div className="bg-gradient-to-br from-cyan-600 via-slate-800 to-slate-900 p-6 text-white">
                     <div className="flex items-center justify-between gap-3">
@@ -152,7 +149,7 @@ export default async function BlogPage({ searchParams }) {
                     <div className="mb-4 flex flex-wrap gap-2">
                       {Array.isArray(post?.tags) && post.tags.slice(0, 3).map((tag) => (
                         <span key={tag} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                          {tag}
+                          #{tag}
                         </span>
                       ))}
                     </div>
