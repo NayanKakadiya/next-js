@@ -2,33 +2,36 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 async function getBlogs(page = 1) {
-  const response = await fetch(`https://jsonfakery.com/blogs/paginated?page=${page}`, {
+  const limit = 10;
+  const skip = (page - 1) * limit;
+  const response = await fetch(`https://dummyjson.com/posts?limit=${limit}&skip=${skip}`, {
     next: { revalidate: 60 },
   });
 
   if (!response.ok) {
-    throw new Error('Unable to fetch blogs');
+    return {
+      blogs: [],
+      pagination: {
+        currentPage: page,
+        totalPages: 1,
+        totalItems: 0,
+        perPage: limit,
+      },
+    };
   }
 
   const data = await response.json();
-  const blogs = Array.isArray(data?.data)
-    ? data.data
-    : Array.isArray(data)
-      ? data
-      : Array.isArray(data?.blogs)
-        ? data.blogs
-        : Array.isArray(data?.posts)
-          ? data.posts
-          : [];
-
-  const totalPages = Number(data?.last_page || data?.total_pages || 1);
-  const currentPage = Number(data?.current_page || page || 1);
+  const blogs = Array.isArray(data?.posts) ? data.posts : [];
+  const totalItems = Number(data?.total || 0);
+  const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
 
   return {
     blogs,
     pagination: {
-      currentPage,
-      totalPages: Number.isFinite(totalPages) && totalPages > 0 ? totalPages : 1,
+      currentPage: page,
+      totalPages,
+      totalItems,
+      perPage: limit,
     },
   };
 }
@@ -50,7 +53,7 @@ function getBlogSubtitle(post) {
 }
 
 function getBlogContent(post) {
-  return post?.main_content || post?.content || post?.excerpt || post?.description || post?.summary || 'No content available for this article yet.';
+  return post?.body || post?.main_content || post?.content || post?.excerpt || post?.description || post?.summary || 'No content available for this article yet.';
 }
 
 function getBlogSlug(post) {
@@ -74,7 +77,7 @@ function getAbsoluteUrl(value) {
 }
 
 function getBlogCategory(post) {
-  return post?.category?.name || post?.tag?.name || post?.category || post?.tag || post?.topic || 'Blog';
+  return post?.category || post?.tag || post?.topic || (Array.isArray(post?.tags) ? post.tags[0] : '') || 'Blog';
 }
 
 function getTagLabel(tag) {
@@ -108,21 +111,37 @@ function formatDate(value) {
 }
 
 async function getBlogBySlug(slug) {
-  const maxPagesToCheck = 5;
+  const id = Number(slug);
+  if (Number.isFinite(id) && id > 0) {
+    const response = await fetch(`https://dummyjson.com/posts/${id}`, {
+      next: { revalidate: 60 },
+    });
+    if (response.ok) {
+      return response.json();
+    }
+  }
 
-  for (let page = 1; page <= maxPagesToCheck; page += 1) {
-    const { blogs, pagination } = await getBlogs(page);
+  const firstPage = await getBlogs(1);
+  const foundPost = firstPage.blogs.find((item) => {
+    const itemSlug = getBlogSlug(item);
+    return itemSlug === slug || item?.id?.toString() === slug;
+  });
+
+  if (foundPost) {
+    return foundPost;
+  }
+
+  const totalPages = firstPage.pagination.totalPages;
+
+  for (let page = 2; page <= totalPages; page += 1) {
+    const { blogs } = await getBlogs(page);
     const post = blogs.find((item) => {
       const itemSlug = getBlogSlug(item);
-      return itemSlug === slug || createSlug(getBlogTitle(item)) === slug || item?.id?.toString() === slug;
+      return itemSlug === slug || item?.id?.toString() === slug;
     });
 
     if (post) {
       return post;
-    }
-
-    if (pagination.totalPages <= page) {
-      break;
     }
   }
 
@@ -229,7 +248,7 @@ export default async function BlogDetailPage({ params }) {
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-base leading-8 text-slate-700 sm:p-6">
-                <div className="space-y-4" dangerouslySetInnerHTML={{ __html: content }} />
+                <p className="whitespace-pre-line">{content}</p>
               </div>
             </article>
 

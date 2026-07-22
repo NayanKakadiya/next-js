@@ -5,47 +5,33 @@ export const dynamic = 'force-dynamic';
 
 async function getBlogs(page = 1) {
   try {
-    const response = await fetch(`https://jsonfakery.com/blogs/paginated?page=${page}`, {
-      next: { revalidate: 60 },
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-      },
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    // DummyJSON પર 403 નો ઈશ્યુ નથી આવતો
+    const response = await fetch(`https://dummyjson.com/posts?limit=${limit}&skip=${skip}`, {
+      next: { revalidate: 60 }
     });
 
     if (!response.ok) {
-      console.error(`Failed to fetch blogs. Status: ${response.status}`);
       return { blogs: [], pagination: { currentPage: 1, totalPages: 1, totalItems: 0, perPage: 10 } };
     }
 
     const data = await response.json();
-
-    const blogs = Array.isArray(data?.data)
-      ? data.data
-      : Array.isArray(data)
-        ? data
-        : Array.isArray(data?.blogs)
-          ? data.blogs
-          : Array.isArray(data?.posts)
-            ? data.posts
-            : [];
-
-    const totalPages = Number(data?.last_page || data?.total_pages || 1);
-    const currentPage = Number(data?.current_page || page || 1);
-    const totalItems = Number(data?.total || blogs.length || 0);
-    const perPage = Number(data?.per_page || 10);
+    const totalItems = data.total || 0;
+    const totalPages = Math.ceil(totalItems / limit) || 1;
 
     return {
-      blogs,
+      blogs: data.posts || [],
       pagination: {
-        currentPage,
-        totalPages: Number.isFinite(totalPages) && totalPages > 0 ? totalPages : 1,
+        currentPage: page,
+        totalPages,
         totalItems,
-        perPage,
+        perPage: limit,
       },
     };
   } catch (error) {
-    console.error('Error in getBlogs:', error);
-    // Return empty fallback instead of crashing the page
+    console.error('Error fetching blogs:', error);
     return {
       blogs: [],
       pagination: { currentPage: 1, totalPages: 1, totalItems: 0, perPage: 10 },
@@ -135,62 +121,54 @@ export default async function BlogPage({ searchParams }) {
               const title = getBlogTitle(post);
               const slug = getBlogSlug(post);
               const excerpt = getBlogExcerpt(post);
-              const image = getBlogImage(post);
               const category = getBlogCategory(post);
+              const views = post?.views ?? 0;
+              const likes = post?.reactions?.likes ?? 0;
+              const dislikes = post?.reactions?.dislikes ?? 0;
 
               return (
                 <article
                   key={slug + index}
-                  className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+                  className="group overflow-hidden rounded-4xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
                 >
-                  <div className="relative">
-                    <img
-                      src={image}
-                      alt={title}
-                      className="h-48 w-full object-cover transition duration-300 group-hover:scale-105"
-                    />
-                    <span className="absolute left-3 top-3 rounded-full bg-cyan-600 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-white">
-                      {category}
-                    </span>
+                  <div className="bg-gradient-to-br from-cyan-600 via-slate-800 to-slate-900 p-6 text-white">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-cyan-100">
+                        {category}
+                      </span>
+                      <span className="text-xs font-semibold text-slate-200">
+                        {views} views
+                      </span>
+                    </div>
+                    <h2 className="mt-5 line-clamp-2 text-xl font-semibold text-white">
+                      {title}
+                    </h2>
+                    <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-200">
+                      {excerpt}
+                    </p>
                   </div>
 
                   <div className="p-5">
-                    <div className="mb-2 flex items-center justify-between gap-2">
-                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-600">
-                        Blog
+                    <div className="mb-4 flex items-center justify-between text-sm text-slate-500">
+                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                        {likes} likes
                       </span>
-                      <span className="text-xs font-medium text-emerald-600">
-                        {post?.created_at ? post.created_at : 'Fresh'}
+                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                        {dislikes} dislikes
                       </span>
                     </div>
-
-                    <div className="mb-3 flex items-start justify-between gap-3">
-                      <div>
-                        <h2 className="line-clamp-1 text-lg font-semibold text-slate-900">
-                          {title}
-                        </h2>
-                        <p className="text-sm text-slate-500">
-                          {post?.user?.first_name ? `${post.user.first_name} ${post.user.last_name || ''}`.trim() : 'Editorial team'}
-                        </p>
-                      </div>
-                    </div>
-
-                    <p className="mb-4 line-clamp-3 text-sm leading-6 text-slate-600">
-                      {excerpt}
-                    </p>
 
                     <div className="mb-4 flex flex-wrap gap-2">
-                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600">
-                        {post?.comments?.length ?? 0} comments
-                      </span>
-                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600">
-                        {post?.tags?.length ?? 0} tags
-                      </span>
+                      {Array.isArray(post?.tags) && post.tags.slice(0, 3).map((tag) => (
+                        <span key={tag} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                          {tag}
+                        </span>
+                      ))}
                     </div>
 
                     <Link
                       href={`/blog/${encodeURIComponent(slug)}`}
-                      className="block w-full rounded-lg bg-slate-900 px-4 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-slate-700"
+                      className="block w-full rounded-full bg-slate-900 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-slate-700"
                     >
                       View Details
                     </Link>
