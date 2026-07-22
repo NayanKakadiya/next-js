@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { getPosts } from '../services/api';
 
 // 1. Force Dynamic rendering to avoid build-time fetch issues on Vercel
 export const dynamic = 'force-dynamic';
@@ -6,20 +7,10 @@ export const dynamic = 'force-dynamic';
 async function getBlogs(page = 1) {
   try {
     const limit = 10;
-    const skip = (page - 1) * limit;
+    const data = await getPosts(page, limit);
 
-    // DummyJSON પર 403 નો ઈશ્યુ નથી આવતો
-    const response = await fetch(`https://dummyjson.com/posts?limit=${limit}&skip=${skip}`, {
-      next: { revalidate: 60 }
-    });
-
-    if (!response.ok) {
-      return { blogs: [], pagination: { currentPage: 1, totalPages: 1, totalItems: 0, perPage: 10 } };
-    }
-
-    const data = await response.json();
-    const totalItems = data.total || 0;
-    const totalPages = Math.ceil(totalItems / limit) || 1;
+    const totalItems = Number(data.total || 0);
+    const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
 
     return {
       blogs: data.posts || [],

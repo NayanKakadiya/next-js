@@ -1,26 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { getPostById, getPosts } from '../../services/api';
 
 async function getBlogs(page = 1) {
   const limit = 10;
-  const skip = (page - 1) * limit;
-  const response = await fetch(`https://dummyjson.com/posts?limit=${limit}&skip=${skip}`, {
-    next: { revalidate: 60 },
-  });
-
-  if (!response.ok) {
-    return {
-      blogs: [],
-      pagination: {
-        currentPage: page,
-        totalPages: 1,
-        totalItems: 0,
-        perPage: limit,
-      },
-    };
-  }
-
-  const data = await response.json();
+  const data = await getPosts(page, limit);
   const blogs = Array.isArray(data?.posts) ? data.posts : [];
   const totalItems = Number(data?.total || 0);
   const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
@@ -113,12 +97,7 @@ function formatDate(value) {
 async function getBlogBySlug(slug) {
   const id = Number(slug);
   if (Number.isFinite(id) && id > 0) {
-    const response = await fetch(`https://dummyjson.com/posts/${id}`, {
-      next: { revalidate: 60 },
-    });
-    if (response.ok) {
-      return response.json();
-    }
+    return getPostById(id);
   }
 
   const firstPage = await getBlogs(1);
