@@ -1,33 +1,8 @@
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { getPostById, getPostBySlug, getPosts } from '../../services/api';
+import { getPostBySlug } from '../../services/api';
 
-async function getBlogs(page = 1) {
-  const limit = 10;
-  const data = await getPosts(page, limit);
-  const blogs = Array.isArray(data?.posts) ? data.posts : [];
-  const totalItems = Number(data?.total || 0);
-  const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
-
-  return {
-    blogs,
-    pagination: {
-      currentPage: page,
-      totalPages,
-      totalItems,
-      perPage: limit,
-    },
-  };
-}
-
-function createSlug(value) {
-  return String(value || '')
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-}
 
 function getBlogTitle(post) {
   return post?.title || post?.name || post?.headline || post?.heading || 'Untitled blog';
@@ -41,9 +16,6 @@ function getBlogContent(post) {
   return post?.body || post?.main_content || post?.content || post?.excerpt || post?.description || post?.summary || 'No content available for this article yet.';
 }
 
-function getBlogSlug(post) {
-  return post?.slug || createSlug(getBlogTitle(post)) || post?.id?.toString() || 'blog';
-}
 
 function getBlogImage(post) {
   return post?.featured_image || post?.image || post?.featuredImage || post?.thumbnail || '';

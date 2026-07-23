@@ -77,7 +77,7 @@ export default async function BlogPage({ searchParams }) {
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 max-w-3xl">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.35em] text-cyan-600">
-            Blog
+            Blog Test Commit
           </p>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
             Fresh ideas, practical tips, and thoughtful stories
