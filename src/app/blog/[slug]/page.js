@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { getPostById, getPostBySlug, getPosts } from '../../services/api';
 
@@ -48,13 +49,32 @@ function getBlogImage(post) {
   return post?.featured_image || post?.image || post?.featuredImage || post?.thumbnail || '';
 }
 
-function getAbsoluteUrl(value) {
+async function getSiteUrl() {
+  const requestHeaders = await headers();
+  const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+
+  if (configuredSiteUrl) {
+    return configuredSiteUrl.replace(/\/$/, '');
+  }
+
+  const host = requestHeaders.get('host');
+  if (host) {
+    const forwardedProto = requestHeaders.get('x-forwarded-proto');
+    const protocol = forwardedProto?.split(',')[0]?.trim() || (host.includes('localhost') ? 'http' : 'https');
+    return `${protocol}://${host}`;
+  }
+
+  return 'http://localhost:3000';
+}
+
+async function getAbsoluteUrl(value) {
   if (!value) {
     return '';
   }
 
   try {
-    return new URL(value, process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').toString();
+    const siteUrl = await getSiteUrl();
+    return new URL(value, siteUrl).toString();
   } catch {
     return String(value);
   }
@@ -102,6 +122,7 @@ async function getBlogBySlug(slug) {
 export async function generateMetadata({ params }) {
   const slug = (await params).slug;
   const post = await getBlogBySlug(slug);
+  const siteUrl = await getSiteUrl();
 
   if (!post) {
     return {
@@ -112,8 +133,8 @@ export async function generateMetadata({ params }) {
 
   const title = getBlogTitle(post);
   const description = getBlogContent(post);
-  const pageUrl = new URL(`/blog/${encodeURIComponent(slug)}`, process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').toString();
-  const imageUrl = getAbsoluteUrl(getBlogImage(post) || '/images/og-blog.png');
+  const pageUrl = new URL(`/blog/${encodeURIComponent(slug)}`, siteUrl).toString();
+  const imageUrl = await getAbsoluteUrl(getBlogImage(post) || '/images/og-blog.png');
 
   return {
     title,
@@ -138,6 +159,7 @@ export async function generateMetadata({ params }) {
 export default async function BlogDetailPage({ params }) {
   const slug = (await params).slug;
   const post = await getBlogBySlug(slug);
+  const siteUrl = await getSiteUrl();
 
   if (!post) {
     notFound();
@@ -153,7 +175,7 @@ export default async function BlogDetailPage({ params }) {
     : 'Editorial team';
   const tags = Array.isArray(post?.tags) ? post.tags : [];
   const commentsCount = Array.isArray(post?.comments) ? post.comments.length : 0;
-  const pageUrl = new URL(`/blog/${encodeURIComponent(slug)}`, process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').toString();
+  const pageUrl = new URL(`/blog/${encodeURIComponent(slug)}`, siteUrl).toString();
   const shareTitle = encodeURIComponent(title);
   const shareDescription = encodeURIComponent(subtitle || content.slice(0, 120));
   const shareUrl = encodeURIComponent(pageUrl);
