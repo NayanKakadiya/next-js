@@ -8,8 +8,6 @@ async function getBlogs(page = 1) {
     const limit = 10;
     const data = await getPosts(page, limit);
 
-    console.log('Fetched Posts Data:', data);
-
     const totalItems = Number(data?.total || 0);
     const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
 
@@ -73,6 +71,8 @@ export default async function BlogPage({ searchParams }) {
   const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1).filter((item) => {
     return item === 1 || item === totalPages || Math.abs(item - currentPage) <= 1;
   });
+
+  console.log('blogs', blogs)
 
   return (
     <main className="flex-1 bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
