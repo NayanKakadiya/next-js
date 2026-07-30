@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React from "react";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function Header() {
   return (
@@ -65,10 +66,10 @@ export default function Header() {
               </li>
               <li>
                 <Link
-                  href="/form"
+                  href="/contact-us"
                   className="block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-0 md:hover:text-fg-brand md:p-0 md:dark:hover:bg-transparent"
                 >
-                  form
+                  Contact us
                 </Link>
               </li>
               <li>
@@ -94,6 +95,9 @@ export default function Header() {
                 >
                   Contact
                 </a>
+              </li>
+              <li className="md:ml-4 md:flex md:items-center">
+                <LanguageSwitcher />
               </li>
             </ul>
           </div>

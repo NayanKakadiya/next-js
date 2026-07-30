@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { getPostBySlug } from '../../services/api';
+import { getPostBySlug } from '@/app/services/api';
 
 
 function getBlogTitle(post) {

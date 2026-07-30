@@ -1,5 +1,7 @@
+import { getPosts } from '@/app/services/api';
 import Link from 'next/link';
-import { getPosts } from '../services/api';
+import {getTranslations} from 'next-intl/server';
+
 
 export const dynamic = 'force-dynamic';
 
@@ -60,6 +62,7 @@ export const metadata = {
 
 export default async function BlogPage({ searchParams }) {
   const resolvedSearchParams = await searchParams;
+  const t = await getTranslations('blogPage');
   const requestedPage = Number(resolvedSearchParams?.page || 1);
   const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
   const { blogs, pagination } = await getBlogs(page);
@@ -77,22 +80,38 @@ export default async function BlogPage({ searchParams }) {
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 max-w-3xl">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.35em] text-cyan-600">
-            Blog Test Commit
+            {t('head.label')}
           </p>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-            Fresh ideas, practical tips, and thoughtful stories
+            {t('head.title')}
           </h1>
           <p className="mt-4 text-lg text-slate-600">
-            Browse the latest posts from our community and explore a curated selection of articles.
+            {t('head.desc')}
           </p>
         </div>
 
         <div className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-          <p className="text-sm text-slate-600">
-            Showing <span className="font-semibold text-slate-900">{startItem}</span> to <span className="font-semibold text-slate-900">{endItem}</span> of <span className="font-semibold text-slate-900">{pagination.totalItems}</span> posts
+          <p className="text-sm text-slate-600">  
+            {t.rich('showingResults', {
+              startItem: startItem,
+              endItem: endItem,
+              totalItems: pagination.totalItems,
+              bold: (chunks) => (
+              <span className="font-semibold text-slate-900">{chunks}</span>
+            ),
+          })}
           </p>
           <p className="text-sm text-slate-500">
-            Page <span className="font-semibold text-slate-900">{currentPage}</span> of <span className="font-semibold text-slate-900">{totalPages}</span>
+            {t.rich('pagination', {
+                currentPage: currentPage,
+                totalPages: totalPages,
+                page: (chunks) => (
+                  <span className="font-semibold text-slate-900">{chunks}</span>
+                ),
+                total: (chunks) => (
+                  <span className="font-semibold text-slate-900">{chunks}</span>
+                ),
+              })}
           </p>
         </div>
 

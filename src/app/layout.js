@@ -1,3 +1,4 @@
+import {NextIntlClientProvider} from 'next-intl';
 import Footer from "./components/common/Footer";
 import Header from "./components/common/Header";
 import { WebVitals } from "./components/WebVitals";
@@ -16,9 +17,11 @@ export default function RootLayout({ children }) {
         <html lang="en" className={`h-full antialiased`}>
             <body className="min-h-full flex flex-col">
                 {/* <WebVitals /> */}
+                <NextIntlClientProvider>
                 <Header/>
                 {children}
                 <Footer />
+                </NextIntlClientProvider>
             </body>
         </html>
   );

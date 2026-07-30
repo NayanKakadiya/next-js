@@ -1,0 +1,50 @@
+{
+  "HomePage": {
+    "bannerSection": {
+      "label": "Willkommen bei Next.js Learning",
+      "title": "Moderne Web-Apps mit Tailwind CSS erstellen",
+      "desc": "Erstellen Sie ansprechende Landingpages und wiederverwendbare UI-Komponenten schnell und zuverlässig.",
+      "getStartedText": "Jetzt loslegen",
+      "learnMoreText": "Mehr erfahren"
+    }
+  },
+  "ProductPage": {
+    "head": {
+      "label": "Hervorgehobene Produkte",
+      "title": "Entdecken Sie Ihr neues Lieblingsstück",
+      "backBtnText": "← Zurück zu den Produkten",
+      "addtoCartBtnText": "In den Warenkorb",
+      "wishlistBtnText": "Wunschliste"
+    }
+  },
+  "ContactUs": {
+    "detail": {
+      "label": "Kontaktieren Sie uns",
+      "title": "Lassen Sie uns gemeinsam etwas Großartiges schaffen.",
+      "desc": "Teilen Sie Ihre Ideen mit uns und wir helfen Ihnen, diese in ein erstklassiges Erlebnis für Ihr Publikum zu verwandeln.",
+      "emailText": "E-Mail",
+      "email": "hello@nextstudio.com",
+      "phoneText": "Telefon",
+      "phone": "+880 1712-345678"
+    },
+    "form": {
+      "firstName": "Vollständiger Name",
+      "email": "E-Mail-Adresse",
+      "phone": "Telefonnummer",
+      "service": "Dienstleistung",
+      "projectdetail": "Projektdetails",
+      "submitBtnText": "Nachricht senden",
+      "sucessmessage": "Nachricht senden"
+    }
+  },
+  "blogPage": {
+    "head": {
+      "label": "Blog",
+      "title": "Frische Ideen, praktische Tipps und inspirierende Geschichten",
+      "desc": "Durchstöbern Sie die neuesten Beiträge aus unserer Community und entdecken Sie eine ausgewählte Sammlung von Artikeln.",
+      "wishlistBtnText": "Wunschliste"
+    },
+    "pagination": "Seite <page>{currentPage}</page> von <total>{totalPages}</total>",
+    "showingResults": "Zeige <bold>{startItem}</bold> bis <bold>{endItem}</bold> von <bold>{totalItems}</bold> Beiträgen"
+  }
+}

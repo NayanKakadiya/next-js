@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import {useTranslations} from 'next-intl';
 
 export default function FormPage() {
+  const t = useTranslations('ContactUs');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -60,27 +62,27 @@ export default function FormPage() {
         <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
           <section className="bg-gradient-to-br from-cyan-600 to-blue-700 p-8 text-white sm:p-10 lg:p-12">
             <p className="mb-3 text-sm font-semibold uppercase tracking-[0.35em] text-cyan-100">
-              Contact us
+              {t('detail.label')}
             </p>
             <h1 className="text-3xl font-semibold sm:text-4xl">
-              Let&apos;s build something amazing together.
+              {t('detail.title')}
             </h1>
             <p className="mt-4 max-w-md text-base leading-7 text-cyan-50/90">
-              Share your ideas and we will help turn them into a polished experience for your audience.
+              {t('detail.desc')}
             </p>
 
             <div className="mt-8 space-y-4 rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-100">
-                  Email
+                  {t('detail.emailText')}
                 </p>
-                <p className="mt-1 text-lg">hello@nextstudio.com</p>
+                <p className="mt-1 text-lg">{t('detail.email')}</p>
               </div>
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-100">
-                  Phone
+                  {t('detail.phoneText')}
                 </p>
-                <p className="mt-1 text-lg">+880 1712-345678</p>
+                <p className="mt-1 text-lg">{t('detail.phone')}</p>
               </div>
             </div>
           </section>
@@ -89,7 +91,7 @@ export default function FormPage() {
             <div className="grid gap-5 sm:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700" htmlFor="name">
-                  Full name
+                  {t('form.firstName')}
                 </label>
                 <input
                   id="name"
@@ -105,7 +107,7 @@ export default function FormPage() {
 
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700" htmlFor="email">
-                  Email address
+                  {t('form.email')}
                 </label>
                 <input
                   id="email"
@@ -123,7 +125,7 @@ export default function FormPage() {
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700" htmlFor="phone">
-                  Phone number
+                  {t('form.phone')}
                 </label>
                 <input
                   id="phone"
@@ -138,7 +140,7 @@ export default function FormPage() {
 
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700" htmlFor="service">
-                  Service
+                  {t('form.service')}
                 </label>
                 <select
                   id="service"
@@ -157,7 +159,7 @@ export default function FormPage() {
 
             <div className="mt-5">
               <label className="mb-2 block text-sm font-medium text-slate-700" htmlFor="message">
-                Project details
+                {t('form.projectdetail')}
               </label>
               <textarea
                 id="message"
@@ -175,14 +177,14 @@ export default function FormPage() {
               type="submit"
               className="mt-6 inline-flex items-center rounded-full bg-cyan-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-cyan-700"
             >
-              Send Message
+              {t('form.submitBtnText')}
             </button>
 
             {error ? (
               <p className="mt-4 text-sm font-medium text-rose-600">{error}</p>
             ) : submitted ? (
               <p className="mt-4 text-sm font-medium text-emerald-600">
-                Thanks! Your message has been received.
+                {t('form.sucessmessage')}
               </p>
             ) : null}
           </form>

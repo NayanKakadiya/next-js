@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { getProductById } from '../../services/api';
+import { getProductById } from '../../../services/api';
+import {getTranslations} from 'next-intl/server';
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
@@ -15,6 +16,7 @@ export async function generateMetadata({ params }) {
 export default async function ProductDetailPage({ params }) {
     const { id } = await params;
     const product = await getProductById(id);
+    const t = await getTranslations('ProductPage');
     const image = product?.thumbnail || product?.images?.[0] || '';
     const price = Number(product?.price ?? 0).toFixed(2);
     const discount = Number(product?.discountPercentage ?? 0);
@@ -25,7 +27,7 @@ export default async function ProductDetailPage({ params }) {
     <main className="flex-1 bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <Link href="/product" className="mb-6 inline-block text-sm font-semibold text-cyan-600 hover:text-cyan-700">
-          ← Back to Products
+          {t('head.backBtnText')}
         </Link>
 
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
@@ -62,10 +64,10 @@ export default async function ProductDetailPage({ params }) {
 
               <div className="mt-8 flex flex-wrap gap-3">
                 <button className="rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700">
-                  Add to Cart
+                  {t('head.addtoCartBtnText')}
                 </button>
                 <button className="rounded-lg border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
-                  Wishlist
+                  {t('head.wishlistBtnText')}
                 </button>
               </div>
             </div>
