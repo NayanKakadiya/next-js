@@ -1,7 +1,8 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTransition } from 'react';
+import { usePathname, useRouter } from '@/i18n/navigation';
+import { useLocale } from 'next-intl';
 
 const languages = [
   { code: 'en', label: 'English' },
@@ -10,79 +11,34 @@ const languages = [
 
 export default function LanguageSwitcher() {
   const router = useRouter();
+  const locale = useLocale();
+  const [isPending, startTransition] = useTransition();
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef(null);
-  const currentLocale = useMemo(() => {
-    if (!pathname) return 'en';
-    const segments = pathname.split('/').filter(Boolean);
-    return segments[0] === 'de' ? 'de' : 'en';
-  }, [pathname]);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setOpen(false);
-      }
-    };
+  function onSelectChange(event) {
+    const nextLocale = event.target.value;
 
-    window.addEventListener('mousedown', handleClickOutside);
-    return () => window.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const changeLanguage = (locale) => {
-    const path = pathname || '/';
-    const withoutLocale = path.replace(/^\/(de|en)/, '') || '/';
-
-    setOpen(false);
-    if (locale === 'de') {
-      router.push(`/de${withoutLocale === '/' ? '' : withoutLocale}`);
-      return;
-    }
-
-    // Default locale is English and uses an unprefixed path.
-    router.push(withoutLocale === '/' ? '/' : withoutLocale);
-  };
+    startTransition(() => {
+      // next-intl નો router પોતે જ લોકેલ બદલી આપશે
+      router.replace(pathname, { locale: nextLocale });
+    });
+  }
 
   return (
-    <div ref={menuRef} className="relative inline-block text-left">
-      <button
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400"
+    <label className="relative inline-flex items-center text-gray-400">
+      <select
+        className="inline-flex appearance-none bg-transparent p-2 text-sm font-medium text-slate-700 cursor-pointer"
+        defaultValue={locale}
+        //value={locale}
+        disabled={isPending}
+        onChange={onSelectChange}
       >
-        {currentLocale.toUpperCase()}
-        <svg
-          className="h-4 w-4"
-          viewBox="0 0 20 20"
-          fill="none"
-          stroke="currentColor"
-        >
-          <path d="M6 8l4 4 4-4" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </button>
-
-      {open && (
-        <div className="absolute right-0 z-20 mt-2 w-40 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg ring-1 ring-black/5">
-          <div className="py-1">
-            {languages.map((language) => (
-              <button
-                key={language.code}
-                type="button"
-                onClick={() => changeLanguage(language.code)}
-                className={`flex w-full items-center justify-between px-4 py-2 text-sm transition ${
-                  currentLocale === language.code
-                    ? 'bg-slate-100 font-semibold text-slate-900'
-                    : 'text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                <span>{language.label}</span>
-                {currentLocale === language.code && <span className="text-slate-400">✓</span>}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+        {languages.map((language) => (
+          <option key={language.code} value={language.code}>
+            {language.label}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
