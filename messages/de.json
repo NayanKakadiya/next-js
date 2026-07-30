@@ -1,4 +1,12 @@
 {
+  "header": {
+    "Navigation": {
+      "home": "Startseite",
+      "product": "Produkte",
+      "contactUs": "Kontakt",
+      "blog": "Blog"
+    }
+  },
   "HomePage": {
     "bannerSection": {
       "label": "Willkommen bei Next.js Learning",
@@ -46,5 +54,9 @@
     },
     "pagination": "Seite <page>{currentPage}</page> von <total>{totalPages}</total>",
     "showingResults": "Zeige <bold>{startItem}</bold> bis <bold>{endItem}</bold> von <bold>{totalItems}</bold> Beiträgen"
+  },
+   "LocaleSwitcher": {
+    "label": "Sprache ändern",
+    "locale": "{locale, select, de {Deutsch} en {English} other {Unbekannt}}"
   }
 }

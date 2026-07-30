@@ -1,10 +1,15 @@
 import Link from "next/link";
 import React from "react";
-import LanguageSwitcher from "./LanguageSwitcher";
+import {getTranslations} from 'next-intl/server';
+import NavigationLink from "../NavigationLink";
+import LanguageSwitcher from "../LanguageSwitcher";
 
-export default function Header() {
+
+export default async function Header() {
+  const t = await getTranslations('header');
   return (
     <>
+      <header>
       <nav className="bg-neutral-primary w-full z-20 top-0 start-0 border-b border-default">
         <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
           <Link
@@ -48,45 +53,25 @@ export default function Header() {
           <div className="hidden w-full md:block md:w-auto" id="navbar-default">
             <ul className="font-medium flex flex-col items-center p-4 md:p-0 mt-4 border border-default rounded-base bg-neutral-secondary-soft md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-neutral-primary">
               <li>
-                <Link
-                  href="/"
-                  className="block py-2 px-3 text-white bg-brand rounded md:bg-transparent md:text-fg-brand md:p-0"
-                  aria-current="page"
-                >
-                  Home
-                </Link>
+                <NavigationLink href="/">{t('Navigation.home')}</NavigationLink>
               </li>
               <li>
-                <Link
-                  href="/product"
-                  className="block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-0 md:hover:text-fg-brand md:p-0 md:dark:hover:bg-transparent"
-                >
-                  product
-                </Link>
+                <NavigationLink href="/product">{t('Navigation.product')}</NavigationLink>
               </li>
               <li>
-                <Link
-                  href="/contact-us"
-                  className="block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-0 md:hover:text-fg-brand md:p-0 md:dark:hover:bg-transparent"
-                >
-                  Contact us
-                </Link>
+                <NavigationLink href="/contact-us">{t('Navigation.contactUs')}</NavigationLink>
               </li>
               <li>
-                <Link
-                  href="/blog"
-                  className="block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-0 md:hover:text-fg-brand md:p-0 md:dark:hover:bg-transparent"
-                >
-                  Blog
-                </Link>
+                <NavigationLink href="/blog">{t('Navigation.blog')}</NavigationLink>
               </li>
               <li className="md:ml-4 md:flex md:items-center">
-                <LanguageSwitcher />
+                 <LanguageSwitcher />
               </li>
             </ul>
           </div>
         </div>
       </nav>
+      </header>
     </>
   );
 }
