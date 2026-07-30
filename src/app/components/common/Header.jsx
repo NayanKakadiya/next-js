@@ -22,7 +22,7 @@ export default async function Header() {
               alt="Flowbite Logo"
             />
             <span className="self-center text-xl text-heading font-semibold whitespace-nowrap">
-              Flowbite
+              Next Js Language
             </span>
           </Link>
           <button
